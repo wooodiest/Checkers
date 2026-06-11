@@ -43,7 +43,7 @@ public class GameController implements NetworkListener {
         SwingUtilities.invokeLater(() -> {
             localPlayer = new Player(assignedColor, "You");
             gameStarted = true;
-            mainFrame.getChatPanel().appendSystemMessage("Connected. You play as " + formatColor(assignedColor) + ".");
+            appendTimedSystemMessage("Connected. You play as " + formatColor(assignedColor) + ".");
             refreshView();
         });
     }
@@ -68,7 +68,7 @@ public class GameController implements NetworkListener {
         SwingUtilities.invokeLater(() -> {
             if (!gameOver) {
                 gameOver = true;
-                mainFrame.getChatPanel().appendSystemMessage("Connection lost.");
+                appendTimedSystemMessage("Connection lost.");
                 mainFrame.setStatusText("Disconnected");
             }
         });
@@ -167,6 +167,11 @@ public class GameController implements NetworkListener {
         if (!result.success()) {
             return;
         }
+        
+        String playerName = sendToNetwork ? "You" : "Opponent";
+        String moveMessage = formatMoveMessage(playerName, move);
+        appendTimedSystemMessage(moveMessage);
+        
         if (sendToNetwork) {
             networkManager.sendMove(move.getFromX(), move.getFromY(), move.getToX(), move.getToY());
         }
@@ -181,6 +186,18 @@ public class GameController implements NetworkListener {
         refreshView();
         checkForWinner(sendToNetwork);
     }
+    
+    private void appendTimedSystemMessage(String message) {
+        String timestamp = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        mainFrame.getChatPanel().appendSystemMessage("[" + timestamp + "] " + message);
+    }
+    
+    private String formatMoveMessage(String playerName, Move move) {
+        String from = "(" + move.getFromX() + ", " + move.getFromY() + ")";
+        String to = "(" + move.getToX() + ", " + move.getToY() + ")";
+        String capturePart = move.isCapture() ? " (captured a piece)" : "";
+        return playerName + " moved from " + from + " to " + to + capturePart + ".";
+    }
 
     private MoveResultWrapper applyMoveToModel(Move move) {
         var result = gameLogic.applyMove(board, move);
@@ -194,7 +211,7 @@ public class GameController implements NetworkListener {
         }
         gameOver = true;
         mainFrame.showGameOver(winner, localPlayer.getColor());
-        mainFrame.getChatPanel().appendSystemMessage(formatColor(winner) + " wins.");
+        appendTimedSystemMessage(formatColor(winner) + " wins.");
         if (notifyOpponent) {
             networkManager.sendGameEnd(winner.name() + "_WINS");
         }
@@ -203,7 +220,7 @@ public class GameController implements NetworkListener {
     private void handleRemoteGameEnd(String reason) {
         gameOver = true;
         if ("DISCONNECTED".equals(reason)) {
-            mainFrame.getChatPanel().appendSystemMessage("Opponent disconnected.");
+            appendTimedSystemMessage("Opponent disconnected.");
             mainFrame.setStatusText("Disconnected");
             return;
         }
@@ -211,9 +228,9 @@ public class GameController implements NetworkListener {
             String winnerName = reason.substring(0, reason.length() - "_WINS".length());
             PieceColor winner = PieceColor.valueOf(winnerName);
             mainFrame.showGameOver(winner, localPlayer.getColor());
-            mainFrame.getChatPanel().appendSystemMessage(formatColor(winner) + " wins.");
+            appendTimedSystemMessage(formatColor(winner) + " wins.");
         } else {
-            mainFrame.getChatPanel().appendSystemMessage("Game ended: " + reason);
+            appendTimedSystemMessage("Game ended: " + reason);
             mainFrame.setStatusText("Game ended");
         }
     }

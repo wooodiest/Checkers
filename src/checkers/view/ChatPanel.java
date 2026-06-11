@@ -21,7 +21,7 @@ public class ChatPanel extends JPanel {
         setLayout(new BorderLayout(5, 5));
         setBorder(BorderFactory.createTitledBorder("Chat"));
 
-        historyArea = new JTextArea(20, 45);
+        historyArea = new JTextArea(20, 50);
         historyArea.setEditable(false);
         historyArea.setLineWrap(true);
         historyArea.setWrapStyleWord(true);
