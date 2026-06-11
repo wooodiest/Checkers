@@ -5,7 +5,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.BorderFactory;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -21,12 +21,16 @@ public class ChatPanel extends JPanel {
         setLayout(new BorderLayout(5, 5));
         setBorder(BorderFactory.createTitledBorder("Chat"));
 
-        historyArea = new JTextArea(20, 30);
+        historyArea = new JTextArea(20, 45);
         historyArea.setEditable(false);
         historyArea.setLineWrap(true);
         historyArea.setWrapStyleWord(true);
 
+        Font font = historyArea.getFont().deriveFont(Font.PLAIN, 15f);
+        historyArea.setFont(font);
+
         inputField = new JTextField();
+        inputField.setFont(font);
 
         add(new JScrollPane(historyArea), BorderLayout.CENTER);
         add(inputField, BorderLayout.SOUTH);
