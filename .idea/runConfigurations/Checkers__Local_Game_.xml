@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Checkers (Local Game)" type="CompoundRunConfigurationType">
+    <toRun name="Checkers Host" type="Application" />
+    <toRun name="Checkers Client" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>
