@@ -224,13 +224,12 @@ public class GameController implements NetworkListener {
             networkManager.sendMove(move.getFromX(), move.getFromY(), move.getToX(), move.getToY());
         }
 
-        // Check for winner BEFORE refreshing view
         PieceColor winner = gameLogic.checkWinner(board);
         if (winner != null) {
             gameOver = true;
             mainFrame.showGameOver(winner, localPlayer.getColor());
             appendTimedSystemMessage(formatColor(winner) + " wins.");
-            refreshView(); // Refresh view once after setting game over
+            refreshView(); 
             if (sendToNetwork) {
                 networkManager.sendGameEnd(winner.name() + "_WINS");
             }
