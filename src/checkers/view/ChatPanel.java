@@ -29,7 +29,23 @@ public class ChatPanel extends JPanel {
         Font font = historyArea.getFont().deriveFont(Font.PLAIN, 15f);
         historyArea.setFont(font);
 
-        inputField = new JTextField();
+        inputField = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (getText().isEmpty()) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(Color.GRAY);
+                    g2.setFont(getFont().deriveFont(Font.ITALIC));
+                    Insets insets = getInsets();
+                    int fontHeight = g2.getFontMetrics().getHeight();
+                    int y = (getHeight() - fontHeight) / 2 + g2.getFontMetrics().getAscent();
+                    g2.drawString("Type a message...", insets.left, y);
+                    g2.dispose();
+                }
+            }
+        };
         inputField.setFont(font);
 
         add(new JScrollPane(historyArea), BorderLayout.CENTER);
