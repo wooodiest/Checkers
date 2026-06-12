@@ -19,7 +19,7 @@ public class MainFrame extends JFrame {
     private final JButton restartButton;
 
     public MainFrame() {
-        super("Network Checkers");
+        super("Checkers");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         setResizable(false); 
