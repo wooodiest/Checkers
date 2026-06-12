@@ -22,6 +22,8 @@ public class MainFrame extends JFrame {
         super("Network Checkers");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
+        setResizable(false); 
+        setSize(980, 519);
 
         chatPanel = new ChatPanel();
         statusLabel = new JLabel("Waiting for connection...");
@@ -43,8 +45,6 @@ public class MainFrame extends JFrame {
         add(boardPanel, BorderLayout.WEST);
         add(sidePanel, BorderLayout.EAST);
 
-        pack();
-        setMinimumSize(getSize());
         setLocationRelativeTo(null);
     }
 
