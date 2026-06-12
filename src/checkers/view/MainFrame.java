@@ -20,7 +20,6 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        boardPanel = new BoardPanel();
         chatPanel = new ChatPanel();
         statusLabel = new JLabel("Waiting for connection...");
         statusLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -29,7 +28,9 @@ public class MainFrame extends JFrame {
         sidePanel.add(chatPanel, BorderLayout.CENTER);
         sidePanel.add(statusLabel, BorderLayout.SOUTH);
 
-        add(boardPanel, BorderLayout.CENTER);
+        boardPanel = new BoardPanel(chatPanel);
+
+        add(boardPanel, BorderLayout.WEST);
         add(sidePanel, BorderLayout.EAST);
 
         pack();

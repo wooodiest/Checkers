@@ -3,6 +3,7 @@ package checkers.controller;
 import checkers.model.Board;
 import checkers.model.GameLogic;
 import checkers.model.Move;
+import checkers.model.Piece;
 import checkers.model.PieceColor;
 import checkers.model.Player;
 import checkers.view.MainFrame;
@@ -154,10 +155,31 @@ public class GameController implements NetworkListener {
     private Move buildFallbackMove(int fromX, int fromY, int toX, int toY) {
         int deltaX = toX - fromX;
         int deltaY = toY - fromY;
-        if (Math.abs(deltaX) == 2 && Math.abs(deltaY) == 2) {
-            int capturedX = fromX + deltaX / 2;
-            int capturedY = fromY + deltaY / 2;
-            return new Move(fromX, fromY, toX, toY, capturedX, capturedY);
+        if (Math.abs(deltaX) == Math.abs(deltaY) && Math.abs(deltaX) >= 2) {
+            int stepX = deltaX / Math.abs(deltaX);
+            int stepY = deltaY / Math.abs(deltaY);
+            int checkX = fromX + stepX;
+            int checkY = fromY + stepY;
+            Piece capturedPiece = null;
+            int capturedX = -1, capturedY = -1;
+            while (checkX != toX && checkY != toY) {
+                Piece p = board.getPiece(checkX, checkY);
+                if (p != null) {
+                    if (capturedPiece == null) {
+                        capturedPiece = p;
+                        capturedX = checkX;
+                        capturedY = checkY;
+                    } else {
+                        capturedPiece = null;
+                        break;
+                    }
+                }
+                checkX += stepX;
+                checkY += stepY;
+            }
+            if (capturedPiece != null) {
+                return new Move(fromX, fromY, toX, toY, capturedX, capturedY);
+            }
         }
         return new Move(fromX, fromY, toX, toY);
     }

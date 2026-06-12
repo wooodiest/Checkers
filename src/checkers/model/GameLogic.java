@@ -176,10 +176,17 @@ public class GameLogic {
         List<Move> moves = new ArrayList<>();
         int[][] directions = getMoveDirections(piece, false);
         for (int[] direction : directions) {
-            int targetX = x + direction[0];
-            int targetY = y + direction[1];
-            if (Board.isPlayableSquare(targetX, targetY) && board.getPiece(targetX, targetY) == null) {
+            int dx = direction[0];
+            int dy = direction[1];
+            int targetX = x + dx;
+            int targetY = y + dy;
+            while (Board.isPlayableSquare(targetX, targetY) && board.getPiece(targetX, targetY) == null) {
                 moves.add(new Move(x, y, targetX, targetY));
+                if (!piece.isKing()) {
+                    break;
+                }
+                targetX += dx;
+                targetY += dy;
             }
         }
         return moves;
@@ -189,18 +196,40 @@ public class GameLogic {
         List<Move> moves = new ArrayList<>();
         int[][] directions = getMoveDirections(piece, true);
         for (int[] direction : directions) {
-            int jumpedX = x + direction[0];
-            int jumpedY = y + direction[1];
-            int landingX = x + direction[0] * 2;
-            int landingY = y + direction[1] * 2;
-            if (!Board.isPlayableSquare(landingX, landingY)) {
-                continue;
-            }
-            Piece jumpedPiece = board.getPiece(jumpedX, jumpedY);
-            if (jumpedPiece != null
-                    && jumpedPiece.getColor() != piece.getColor()
-                    && board.getPiece(landingX, landingY) == null) {
-                moves.add(new Move(x, y, landingX, landingY, jumpedX, jumpedY));
+            int dx = direction[0];
+            int dy = direction[1];
+            if (piece.isKing()) {
+                int checkX = x + dx;
+                int checkY = y + dy;
+                Piece jumpedPiece = null;
+                int jumpedX = -1, jumpedY = -1;
+                while (Board.isPlayableSquare(checkX, checkY)) {
+                    Piece p = board.getPiece(checkX, checkY);
+                    if (p != null) {
+                        if (jumpedPiece == null && p.getColor() != piece.getColor()) {
+                            jumpedPiece = p;
+                            jumpedX = checkX;
+                            jumpedY = checkY;
+                        } else {
+                            break;
+                        }
+                    } else if (jumpedPiece != null) {
+                        moves.add(new Move(x, y, checkX, checkY, jumpedX, jumpedY));
+                    }
+                    checkX += dx;
+                    checkY += dy;
+                }
+            } else {
+                int jumpedX = x + dx;
+                int jumpedY = y + dy;
+                int landingX = x + dx * 2;
+                int landingY = y + dy * 2;
+                if (Board.isPlayableSquare(landingX, landingY)) {
+                    Piece jumpedPiece = board.getPiece(jumpedX, jumpedY);
+                    if (jumpedPiece != null && jumpedPiece.getColor() != piece.getColor() && board.getPiece(landingX, landingY) == null) {
+                        moves.add(new Move(x, y, landingX, landingY, jumpedX, jumpedY));
+                    }
+                }
             }
         }
         return moves;

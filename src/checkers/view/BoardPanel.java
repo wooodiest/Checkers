@@ -26,6 +26,7 @@ public class BoardPanel extends JPanel {
     private static final Color HIGHLIGHT = new Color(186, 220, 88, 180);
     private static final Color TARGET_HIGHLIGHT = new Color(255, 255, 102, 160);
 
+    private final ChatPanel chatPanel;
     private Board board;
     private Point selectedSquare;
     private Set<Point> highlightedTargets = new HashSet<>();
@@ -33,8 +34,8 @@ public class BoardPanel extends JPanel {
     private Point dragPosition;
     private BiConsumer<Integer, Integer> squareClickListener;
 
-    public BoardPanel() {
-        setPreferredSize(new Dimension(640, 640));
+    public BoardPanel(ChatPanel chatPanel) {
+        this.chatPanel = chatPanel;
         setBackground(Color.DARK_GRAY);
 
         MouseAdapter mouseHandler = new MouseAdapter() {
@@ -148,6 +149,13 @@ public class BoardPanel extends JPanel {
 
     private int getSquareSize() {
         return Math.min(getWidth(), getHeight()) / Board.SIZE;
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        Dimension chatSize = chatPanel.getPreferredSize();
+        int size = chatSize.height;
+        return new Dimension(size, size);
     }
 
     @Override
