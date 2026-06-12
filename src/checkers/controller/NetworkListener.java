@@ -13,4 +13,6 @@ public interface NetworkListener {
     void onGameEnd(String reason);
 
     void onDisconnected();
+
+    void onRestartRequest();
 }

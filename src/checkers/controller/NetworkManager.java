@@ -115,6 +115,9 @@ public class NetworkManager implements Runnable {
                 String reason = parts.length >= 2 ? parts[1] : "UNKNOWN";
                 listener.onGameEnd(reason);
             }
+            case "RESTART" -> {
+                listener.onRestartRequest();
+            }
             default -> {
             }
         }
@@ -130,7 +133,10 @@ public class NetworkManager implements Runnable {
 
     public synchronized void sendGameEnd(String reason) {
         sendRaw("END;" + reason);
-        running = false;
+    }
+
+    public synchronized void sendRestart() {
+        sendRaw("RESTART");
     }
 
     private void sendRaw(String command) {

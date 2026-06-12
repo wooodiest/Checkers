@@ -23,6 +23,7 @@ public class GameController implements NetworkListener {
     private Point selectedSquare;
     private boolean gameStarted;
     private boolean gameOver;
+    private PieceColor assignedColor;
 
     public GameController(MainFrame mainFrame, NetworkManager networkManager) {
         this.mainFrame = mainFrame;
@@ -42,8 +43,10 @@ public class GameController implements NetworkListener {
     @Override
     public void onConnected(PieceColor assignedColor) {
         SwingUtilities.invokeLater(() -> {
+            this.assignedColor = assignedColor;
             localPlayer = new Player(assignedColor, "You");
             gameStarted = true;
+            mainFrame.setRestartButtonEnabled(true);
             appendTimedSystemMessage("Connected. You play as " + formatColor(assignedColor) + ".");
             refreshView();
         });
@@ -73,6 +76,29 @@ public class GameController implements NetworkListener {
                 mainFrame.setStatusText("Disconnected");
             }
         });
+    }
+
+    @Override
+    public void onRestartRequest() {
+        SwingUtilities.invokeLater(() -> restartGame());
+    }
+
+    private void restartGame() {
+        board = new Board();
+        gameLogic = new GameLogic();
+        selectedSquare = null;
+        gameOver = false;
+        clearSelection();
+        mainFrame.initializeBoard(board);
+        appendTimedSystemMessage("Game restarted!");
+        refreshView();
+    }
+
+    public void requestRestart() {
+        if (gameStarted) {
+            networkManager.sendRestart();
+            restartGame();
+        }
     }
 
     private void handleSquareClick(int x, int y) {
@@ -189,15 +215,15 @@ public class GameController implements NetworkListener {
         if (!result.success()) {
             return;
         }
-        
+
         String playerName = sendToNetwork ? "You" : "Opponent";
         String moveMessage = formatMoveMessage(playerName, move);
         appendTimedSystemMessage(moveMessage);
-        
+
         if (sendToNetwork) {
             networkManager.sendMove(move.getFromX(), move.getFromY(), move.getToX(), move.getToY());
         }
-        
+
         // Check for winner BEFORE refreshing view
         PieceColor winner = gameLogic.checkWinner(board);
         if (winner != null) {
@@ -210,7 +236,7 @@ public class GameController implements NetworkListener {
             }
             return;
         }
-        
+
         if (result.continuesCapture()) {
             selectedSquare = new Point(move.getToX(), move.getToY());
             List<Move> followUpMoves = gameLogic.getLegalMoves(board, move.getToX(), move.getToY());

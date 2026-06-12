@@ -30,6 +30,7 @@ public class Main {
         NetworkManager networkManager = new NetworkManager(config, null);
         GameController gameController = new GameController(mainFrame, networkManager);
         networkManager.setListener(gameController);
+        mainFrame.setRestartAction(e -> gameController.requestRestart());
 
         mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override

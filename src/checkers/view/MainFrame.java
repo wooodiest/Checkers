@@ -3,17 +3,20 @@ package checkers.view;
 import checkers.model.Board;
 import checkers.model.PieceColor;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.BorderFactory;
 import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
 
     private final BoardPanel boardPanel;
     private final ChatPanel chatPanel;
     private final JLabel statusLabel;
+    private final JButton restartButton;
 
     public MainFrame() {
         super("Network Checkers");
@@ -24,9 +27,16 @@ public class MainFrame extends JFrame {
         statusLabel = new JLabel("Waiting for connection...");
         statusLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
+        restartButton = new JButton("Restart Game");
+        restartButton.setEnabled(false);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(statusLabel, BorderLayout.CENTER);
+        bottomPanel.add(restartButton, BorderLayout.EAST);
+
         JPanel sidePanel = new JPanel(new BorderLayout());
         sidePanel.add(chatPanel, BorderLayout.CENTER);
-        sidePanel.add(statusLabel, BorderLayout.SOUTH);
+        sidePanel.add(bottomPanel, BorderLayout.SOUTH);
 
         boardPanel = new BoardPanel(chatPanel);
 
@@ -36,6 +46,14 @@ public class MainFrame extends JFrame {
         pack();
         setMinimumSize(getSize());
         setLocationRelativeTo(null);
+    }
+
+    public void setRestartAction(ActionListener action) {
+        restartButton.addActionListener(action);
+    }
+
+    public void setRestartButtonEnabled(boolean enabled) {
+        restartButton.setEnabled(enabled);
     }
 
     public BoardPanel getBoardPanel() {
