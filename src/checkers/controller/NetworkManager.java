@@ -131,7 +131,6 @@ public class NetworkManager implements Runnable {
     public synchronized void sendGameEnd(String reason) {
         sendRaw("END;" + reason);
         running = false;
-        closeResources();
     }
 
     private void sendRaw(String command) {

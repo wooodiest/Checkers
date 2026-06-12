@@ -197,6 +197,20 @@ public class GameController implements NetworkListener {
         if (sendToNetwork) {
             networkManager.sendMove(move.getFromX(), move.getFromY(), move.getToX(), move.getToY());
         }
+        
+        // Check for winner BEFORE refreshing view
+        PieceColor winner = gameLogic.checkWinner(board);
+        if (winner != null) {
+            gameOver = true;
+            mainFrame.showGameOver(winner, localPlayer.getColor());
+            appendTimedSystemMessage(formatColor(winner) + " wins.");
+            refreshView(); // Refresh view once after setting game over
+            if (sendToNetwork) {
+                networkManager.sendGameEnd(winner.name() + "_WINS");
+            }
+            return;
+        }
+        
         if (result.continuesCapture()) {
             selectedSquare = new Point(move.getToX(), move.getToY());
             List<Move> followUpMoves = gameLogic.getLegalMoves(board, move.getToX(), move.getToY());
@@ -206,7 +220,6 @@ public class GameController implements NetworkListener {
             clearSelection();
         }
         refreshView();
-        checkForWinner(sendToNetwork);
     }
     
     private void appendTimedSystemMessage(String message) {
@@ -226,20 +239,12 @@ public class GameController implements NetworkListener {
         return new MoveResultWrapper(result.isSuccess(), result.isContinuesCapture());
     }
 
-    private void checkForWinner(boolean notifyOpponent) {
-        PieceColor winner = gameLogic.checkWinner(board);
-        if (winner == null) {
-            return;
-        }
-        gameOver = true;
-        mainFrame.showGameOver(winner, localPlayer.getColor());
-        appendTimedSystemMessage(formatColor(winner) + " wins.");
-        if (notifyOpponent) {
-            networkManager.sendGameEnd(winner.name() + "_WINS");
-        }
-    }
+
 
     private void handleRemoteGameEnd(String reason) {
+        if (gameOver) {
+            return;
+        }
         gameOver = true;
         if ("DISCONNECTED".equals(reason)) {
             appendTimedSystemMessage("Opponent disconnected.");
@@ -251,9 +256,11 @@ public class GameController implements NetworkListener {
             PieceColor winner = PieceColor.valueOf(winnerName);
             mainFrame.showGameOver(winner, localPlayer.getColor());
             appendTimedSystemMessage(formatColor(winner) + " wins.");
+            refreshView();
         } else {
             appendTimedSystemMessage("Game ended: " + reason);
             mainFrame.setStatusText("Game ended");
+            refreshView();
         }
     }
 
@@ -281,9 +288,8 @@ public class GameController implements NetworkListener {
     public void shutdown() {
         if (!gameOver) {
             networkManager.sendGameEnd("DISCONNECTED");
-        } else {
-            networkManager.shutdown();
         }
+        networkManager.shutdown();
     }
 
     private record MoveResultWrapper(boolean success, boolean continuesCapture) {
